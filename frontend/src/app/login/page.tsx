@@ -151,6 +151,20 @@ function LoginForm() {
               Yeni hesap oluşturun
             </Link>
           </p>
+
+          <p className="text-center text-xs text-muted">
+            Demo hesap:{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("demo@stockvision.ai");
+                setPassword("Demo123456");
+              }}
+              className="font-medium text-accent hover:underline"
+            >
+              demo@stockvision.ai / Demo123456
+            </button>
+          </p>
         </CardContent>
       </Card>
 

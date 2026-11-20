@@ -1,7 +1,12 @@
 import type { ApiErrorResponse, ApiFieldError } from "./types";
 
+const RAW_API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").trim();
+
 export const DEFAULT_API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  !RAW_API_BASE_URL ||
+  /^https?:\/\/(localhost|127\.0\.0\.1):8080\/?$/i.test(RAW_API_BASE_URL)
+    ? ""
+    : RAW_API_BASE_URL;
 
 export class ApiClientError extends Error {
   readonly status: number;
