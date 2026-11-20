@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 248 250 252;
+  --foreground: 15 23 42;
+  --surface: 255 255 255;
+  --surface-muted: 241 245 249;
+  --border: 226 232 240;
+  --muted: 100 116 139;
+  --accent: 14 116 144;
+  --accent-foreground: 255 255 255;
+  --positive: 5 150 105;
+  --negative: 225 29 72;
+  --warning: 217 119 6;
+  --info: 37 99 235;
+}
+
+.dark {
+  --background: 9 13 22;
+  --foreground: 241 245 249;
+  --surface: 15 23 42;
+  --surface-muted: 30 41 59;
+  --border: 51 65 85;
+  --muted: 148 163 184;
+  --accent: 34 211 238;
+  --accent-foreground: 9 13 22;
+  --positive: 52 211 153;
+  --negative: 251 113 133;
+  --warning: 251 191 36;
+  --info: 96 165 250;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  *:focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

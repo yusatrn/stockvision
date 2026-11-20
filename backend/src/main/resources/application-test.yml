@@ -1,0 +1,34 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: false
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+  security:
+    bcrypt-strength: 10
+  marketdata:
+    provider: mock
+    stale-threshold-hours: 24
+    default-lookback-days: 90
+  alerts:
+    scheduler:
+      enabled: false
+  ai:
+    provider: template
+    timeout-ms: 5000

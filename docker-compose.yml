@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: stockvision-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-stockvision}
+      POSTGRES_USER: ${POSTGRES_USER:-stockvision}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - stockvision_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stockvision} -d ${POSTGRES_DB:-stockvision}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    profiles: ["full"]
+    build:
+      context: ./backend
+    container_name: stockvision-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
+      SERVER_PORT: 8080
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-stockvision}
+      DB_USERNAME: ${DB_USERNAME:-stockvision}
+      DB_PASSWORD: ${DB_PASSWORD:-change_me_local_only}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:-}
+      JWT_ISSUER: ${JWT_ISSUER:-stockvision-api}
+      JWT_ACCESS_TOKEN_TTL_SECONDS: ${JWT_ACCESS_TOKEN_TTL_SECONDS:-900}
+      JWT_REFRESH_TOKEN_TTL_SECONDS: ${JWT_REFRESH_TOKEN_TTL_SECONDS:-604800}
+      MARKET_DATA_PROVIDER: ${MARKET_DATA_PROVIDER:-mock}
+      MARKET_DATA_STALE_THRESHOLD_HOURS: ${MARKET_DATA_STALE_THRESHOLD_HOURS:-24}
+      MARKET_DATA_YAHOO_BASE_URL: ${MARKET_DATA_YAHOO_BASE_URL:-https://query1.finance.yahoo.com}
+      MARKET_DATA_YAHOO_SYMBOL_SUFFIX: ${MARKET_DATA_YAHOO_SYMBOL_SUFFIX:-.IS}
+      MARKET_DATA_YAHOO_TIMEOUT_MS: ${MARKET_DATA_YAHOO_TIMEOUT_MS:-10000}
+      MARKET_DATA_YAHOO_QUOTE_CACHE_SECONDS: ${MARKET_DATA_YAHOO_QUOTE_CACHE_SECONDS:-60}
+      AI_PROVIDER: ${AI_PROVIDER:-template}
+      AI_GEMINI_API_KEY: ${AI_GEMINI_API_KEY:-}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health/readiness"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
+    profiles: ["full"]
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}
+        NEXT_PUBLIC_DEFAULT_EXCHANGE: ${NEXT_PUBLIC_DEFAULT_EXCHANGE:-BIST}
+        NEXT_PUBLIC_DEFAULT_TIMEZONE: ${NEXT_PUBLIC_DEFAULT_TIMEZONE:-Europe/Istanbul}
+    container_name: stockvision-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    restart: unless-stopped
+
+  # Redis is intentionally deferred until a later production deployment requires distributed rate-limiting or cache state.
+
+volumes:
+  stockvision_postgres_data:

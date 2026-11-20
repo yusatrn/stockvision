@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/stockvision}
+    username: ${DB_USERNAME:stockvision}
+    password: ${DB_PASSWORD:change_me_local_only}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
